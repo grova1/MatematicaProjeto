@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Investimentos</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header id="cabecalho">
+        <h1>Investimentos bacanas</h1>
+    <ul id="menu">
+        <li class="op"><a href="../Análise de investimentos/index.html">Investimentos</a></li>
+        <li class="op"><a href="../aportes periódicos/aportes periódicos.html">Aportes Periódicos</a></li>
+        <li class="op"><a href="../renda na fonte/ImpostoRenda.html">Imposto de Renda</a></li>
+        <li class="op"><a href="../INSS/index.html">INSS</a></li>
+        <li class="op"><a href="../equacao da reta/Reta.html">Equação da Reta</a></li>
+    </ul>
+    </header>
+    
+    <form id="investmentForm">
+        <label for="capitalInicial">Capital Inicial (R$):</label>
+        <input type="number" id="capitalInicial" value="10000"><br><br>
+        
+        <label for="tempo">Tempo de Aplicação (anos):</label>
+        <input type="number" id="tempo" value="5"><br><br>
+        
+        <label for="taxaAplicacao">Taxa de Aplicação (%):</label>
+        <input type="number" id="taxaAplicacao" value="8"><br><br>
+        
+        <label for="taxaIPCA">Taxa IPCA (%):</label>
+        <input type="number" id="taxaIPCA" value="4"><br><br>
+        
+        <button type="button" onclick="calculateInvestments()">Calcular</button>
+    </form>
+    <h2>Resultados</h2>
+    <div id="results"></div>
+    <canvas id="investmentChart" width="800" height="400"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>

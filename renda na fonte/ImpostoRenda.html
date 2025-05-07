@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imposto de Renda Retido na Fonte</title>
+    <link rel="stylesheet" href="styleRenda.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header id="cabecalho">
+       <h1>Imposto de Renda</h1>
+    <ul id="menu">
+        <li class="op"><a href="../Análise de investimentos/index.html">Invertimentos</a></li>
+        <li class="op"><a href="../aportes periódicos/aportes periódicos.html">Aportes Periódiocos</a></li>
+        <li class="op"><a href="../renda na fonte/ImpostoRenda.html">Imposto de Renda</a></li>
+        <li class="op"><a href="../INSS/index.html">INSS</a></li>
+        <li class="op"><a href="../equacao da reta/Reta.html">Equação da Reta</a></li>
+    </ul>
+    </header> 
+
+    <form>
+        <div>
+            <label for="salB">Salário Bruto</label>
+            <input id="salB" type="number" placeholder="R$1509">
+        </div>
+        
+        <div>
+            <label for="NumDep">Dependentes</label>
+            <input id="NumDep" type="number" placeholder="2">
+        </div>
+    
+        <button type="button" onclick="Grafico()" id="calcular">
+            Calcular Imposto de Renda Retido na Fonte
+        </button>
+    </form>
+
+    <h2>Resultados</h2>
+    <div id="resultado"></div>
+    <canvas id="graficoINSS" width="800" height="400"></canvas>
+
+
+
+
+    <script src="scriptRenda.js"></script>
+</body>
+</html>
