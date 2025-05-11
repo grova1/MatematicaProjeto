@@ -33,10 +33,7 @@ function gerarGrafico() {
     const valoresINSS = [];
 
     for (let s = 0; s <= 9000; s += 500) {
-<<<<<<< HEAD
         if (s > 8157.41) break; // Interrompe quando passa do limite da última faixa
-=======
->>>>>>> 4b26968b0ff3f58d4488b56990af076db14c4871
         salarios.push(s);
         valoresINSS.push(calcularINSS(s));
     }
