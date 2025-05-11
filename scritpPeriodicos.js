@@ -35,7 +35,11 @@ function GerarGrafico() {
                            aporte * ((Math.pow(1 + ipcaMensal, n) - 1) / ipcaMensal);
         }
 
+<<<<<<< HEAD
         labels.push(t.toFixed(1)); // Apenas o valor numérico, sem "anos"
+=======
+        labels.push(`${t.toFixed(1)} anos`);
+>>>>>>> 4b26968b0ff3f58d4488b56990af076db14c4871
         montantes.push(montante);
         montantesIPCA.push(montanteIPCA);
     }
@@ -78,12 +82,15 @@ function GerarGrafico() {
         options: {
             responsive: true,
             scales: {
+<<<<<<< HEAD
                 x: {
                     title: {
                         display: true,
                         text: "Tempo"
                     }
                 },
+=======
+>>>>>>> 4b26968b0ff3f58d4488b56990af076db14c4871
                 y: {
                     beginAtZero: true
                 }
