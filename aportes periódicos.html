@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Investimentos com Aportes Periódicos</title>
+    <link rel="stylesheet" href="stylePeriodicos.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header id="cabecalho">
+        <h1>Aportes Periódicos</h1>
+        <ul id="menu">
+        <li class="op"><a href="index.html">Investimentos</a></li>
+        <li class="op"><a href="aportes periódicos.html">Aportes Periódiocos</a></li>
+        <li class="op"><a href="ImpostoRenda.html">Imposto de Renda</a></li>
+        <li class="op"><a href="inss.html">INSS</a></li>
+        <li class="op"><a href="Reta.html">Equação da Reta</a></li>
+        </ul>
+    </header>
+
+    <form>
+        <div>
+            <label for="capital">Capital Inicial (R$)</label>
+            <input id="capital" type="number" placeholder="1000">
+        </div>
+        <div>
+            <label for="aporte">Aporte Periódico (R$)</label>
+            <input id="aporte" type="number" placeholder="200">
+        </div>
+        <div>
+            <label for="tempo">Tempo de Aplicação</label>
+            <input id="tempo" type="number" placeholder="10">
+        </div>
+        <div>
+            <label for="taxa">Taxa de Aplicação (%)</label>
+            <input id="taxa" type="number" placeholder="8">
+        </div>
+        <div>
+            <label for="ipca">Taxa de Inflação - IPCA (%)</label>
+            <input id="ipca" type="number" placeholder="4">
+        </div>
+        <button type="button" onclick="GerarGrafico()">Calcular Investimento</button>
+    </form>
+
+    <h2>Resultado</h2>
+    <div id="resultado"></div>
+    <canvas id="graficoInvestimento" width="800" height="400"></canvas>
+    <script src="scritpPeriodicos.js"></script>
+</body>
