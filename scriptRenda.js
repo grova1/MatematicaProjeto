@@ -1,105 +1,93 @@
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("calcular").addEventListener("click", Grafico);
+let chartWithDeduction = null;
+let chartWithoutDeduction = null;
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const sal   = parseFloat(document.getElementById('salario').value)   || 0;
+  const deps  = parseInt  (document.getElementById('dependentes').value) || 0;
+  const base  = Math.max(0, sal - 189.59 * deps);
+  const irCom = calcIRRF(base, true);
+  const irSem = calcIRRF(base, false);
+
+  document.getElementById('baseCalc').textContent = `Base de cálculo: R$ ${base.toFixed(2)}`;
+  document.getElementById('irrfValue').textContent = `IRRF a recolher: R$ ${irCom.toFixed(2)}`;
+
+  drawChart('chartWithDeduction',  true,  base, irCom,  chartWithDeduction,  c=> chartWithDeduction  = c);
+  drawChart('chartWithoutDeduction', false, base, irSem, chartWithoutDeduction, c=> chartWithoutDeduction = c);
 });
 
-function INSS(salarioBruto) {
-    if (salarioBruto <= 1412) return salarioBruto * 0.075;
-    if (salarioBruto <= 2666.68) return 1412 * 0.075 + (salarioBruto - 1412) * 0.09;
-    if (salarioBruto <= 4000.03) return 1412 * 0.075 + (2666.68 - 1412) * 0.09 + (salarioBruto - 2666.68) * 0.12;
-    if (salarioBruto <= 7786.02) return 1412 * 0.075 + (2666.68 - 1412) * 0.09 + (4000.03 - 2666.68) * 0.12 + (salarioBruto - 4000.03) * 0.14;
-    return 908.86; // Teto do INSS 2025
+function calcIRRF(base, useDeduction) {
+  const tabela = [
+    { min:0,      max:2259.20, aliquota:0.00,   ded:0    },
+    { min:2259.21,max:2826.65, aliquota:0.075, ded:169.44 },
+    { min:2826.66,max:3751.05, aliquota:0.15,  ded:381.44 },
+    { min:3751.06,max:4664.68, aliquota:0.225, ded:662.77 },
+    { min:4664.69,max:Infinity,aliquota:0.275, ded:896.00 }
+  ];
+  const f = tabela.find(f => base >= f.min && base <= f.max);
+  const ded = useDeduction ? f.ded : 0;
+  return Math.max(0, base * f.aliquota - ded);
 }
 
-function calcularOIRRF(salarioBruto, dependentes) {
-    const deducaoDependente = 189.59;
-    const inss = INSS(salarioBruto);
-    const baseCalculo = salarioBruto - inss - (dependentes * deducaoDependente);
+function drawChart(id, useDeduction, userBase, userIR, oldChart, store) {
+  const ctx = document.getElementById(id).getContext('2d');
+  if (oldChart) oldChart.destroy();
 
-    const faixas = [
-        { limite: 2259.20, aliquota: 0, deducao: 0 },
-        { limite: 2826.65, aliquota: 0.075, deducao: 169.44 },
-        { limite: 3751.05, aliquota: 0.15, deducao: 381.44 },
-        { limite: 4664.68, aliquota: 0.225, deducao: 662.77 },
-        { limite: Infinity, aliquota: 0.275, deducao: 896.00 }
-    ];
+  const maxBase = 6000, samples = 200;
+  const labels = Array.from({length: samples+1},
+    (_, i) => +(i * maxBase/samples).toFixed(2)
+  );
+  const data = labels.map(b => calcIRRF(b, useDeduction));
 
-    let imposto = 0;
-    let restante = baseCalculo;
-    let faixaAnterior = 0;
-
-    for (let i = 1; i < faixas.length; i++) {
-        if (baseCalculo > faixas[i - 1].limite) {
-            let faixaTributavel = Math.min(baseCalculo, faixas[i].limite) - faixas[i - 1].limite;
-            imposto += faixaTributavel * faixas[i].aliquota;
-        }
-    }
-
-    return { baseCalculo, irrf: Math.max(imposto, 0) };
-}
-
-function Grafico() {
-    const salarioBruto = parseFloat(document.getElementById("salB").value) || 0;
-    const dependentes = parseInt(document.getElementById("NumDep").value) || 0;
-    
-    const { baseCalculo, irrf } = calcularOIRRF(salarioBruto, dependentes);
-    
-    document.getElementById("resultado").innerHTML = `
-        <p><strong>Base de Cálculo:</strong> R$ ${baseCalculo.toFixed(2)}</p>
-        <p><strong>IRRF a Recolher:</strong> R$ ${irrf.toFixed(2)}</p>
-    `;
-    
-    const valoresBase = [2259.20, 2826.65, 3751.05, 4664.68, 6000];
-    const valoresIR = valoresBase.map(salario => calcularOIRRF(salario, 0).irrf);
-    const valoresIRSemDeducao = valoresBase.map(salario => calcularOIRRF(salario, 0).irrf);
-    
-    const ctx = document.getElementById("graficoINSS").getContext("2d");
-    new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: valoresBase.map(v => `R$ ${v.toFixed(2)}`),
-            datasets: [
-                {
-                    label: "IRRF Calculado",
-                    data: valoresIR,
-                    borderColor: "blue",
-                    backgroundColor: "rgba(0, 0, 255, 0.2)",
-                    fill: true
-                },
-                {
-                    label: "IRRF Máximo",
-                    data: valoresIRSemDeducao,
-                    borderColor: "red",
-                    backgroundColor: "rgba(255, 0, 0, 0.2)",
-                    fill: true
-                },
-                {
-                    label: "Valor Inserido",
-                    data: valoresBase.map(salario => (salario === salarioBruto ? irrf : null)),
-                    borderColor: "green",
-                    backgroundColor: "green",
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                    type: "scatter"
-                }
-            ]
+  const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: useDeduction ? 'Com dedução' : 'Sem dedução',
+        data,
+        borderColor: useDeduction ? '#4a90e2' : '#e94e77',
+        backgroundColor: 'transparent',
+        tension: 0.3,
+        borderDash: []        // força linha sólida
+      }]
+    },
+    options: {
+      responsive: false,
+      scales: {
+        x: {
+          title: { display: true, text: 'Base de Cálculo (R$)' },
+          grid: { borderDash: [] },  // linhas de grade sólidas
+          ticks: { maxTicksLimit: 10 }
         },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "Valor do IRRF (R$)"
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: "Base de Cálculo (R$)"
-                    }
-                }
-            }
+        y: {
+          title: { display: true, text: 'IRRF (R$)' },
+          beginAtZero: true,
+          grid: { borderDash: [] }   // linhas de grade sólidas
         }
-    });
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `R$ ${ctx.parsed.y.toFixed(2)}`
+          }
+        }
+      }
+    }
+  });
+
+  // destaca o ponto do usuário
+  const meta = chart.getDatasetMeta(0);
+  const idx = labels.findIndex(b => b >= userBase);
+  if (idx >= 0) {
+    const pt = meta.data[idx];
+    const draw = chart.ctx;
+    draw.fillStyle = '#000';
+    draw.beginPath();
+    draw.arc(pt.x, pt.y, 5, 0, 2*Math.PI);
+    draw.fill();
+    draw.fillText(`(${userBase.toFixed(2)}, ${userIR.toFixed(2)})`, pt.x+8, pt.y-8);
+  }
+
+  store(chart);
 }
