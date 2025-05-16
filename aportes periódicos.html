@@ -1,53 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Análise de Investimentos com Aportes Periódicos</title>
-    <link rel="stylesheet" href="stylePeriodicos.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Análise de Investimentos com Aportes</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <header id="cabecalho">
-        <h1>Aportes Periódicos</h1>
-        <ul id="menu">
 
+ <header id="cabecalho">
+        <h1>Investimentos bacanas</h1>
+    <ul id="menu">
         <li class="op"><a href="index.html">Investimentos</a></li>
-
-
         <li class="op"><a href="aportes periódicos.html">Aportes Periódiocos</a></li>
         <li class="op"><a href="ImpostoRenda.html">Imposto de Renda</a></li>
         <li class="op"><a href="inss.html">INSS</a></li>
         <li class="op"><a href="Reta.html">Equação da Reta</a></li>
-        </ul>
+    </ul>
     </header>
 
-    <form>
-        <div>
-            <label for="capital">Capital Inicial (R$)</label>
-            <input id="capital" type="number" placeholder="1000">
-        </div>
-        <div>
-            <label for="aporte">Aporte Periódico (R$)</label>
-            <input id="aporte" type="number" placeholder="200">
-        </div>
-        <div>
-            <label for="tempo">Tempo de Aplicação</label>
-            <input id="tempo" type="number" placeholder="10">
-        </div>
-        <div>
-            <label for="taxa">Taxa de Aplicação (%)</label>
-            <input id="taxa" type="number" placeholder="8">
-        </div>
-        <div>
-            <label for="ipca">Taxa de Inflação - IPCA (%)</label>
-            <input id="ipca" type="number" placeholder="4">
-        </div>
-        <button type="button" onclick="GerarGrafico()">Calcular Investimento</button>
-    </form>
+  <form id="invForm">
+    <label for="capital">Capital Inicial (R$):</label>
+    <input type="number" id="capital" step="0.01" placeholder="Ex: 10000.00" required/>
 
-    <h2>Resultado</h2>
-    <div id="resultado"></div>
-    <canvas id="graficoInvestimento" width="800" height="400"></canvas>
-    <script src="scritpPeriodicos.js"></script>
+    <label for="aporte">Aporte Mensal (R$):</label>
+    <input type="number" id="aporte" step="0.01" placeholder="Ex: 500.00" required/>
+
+    <label for="meses">Tempo (meses):</label>
+    <input type="number" id="meses" min="1" placeholder="Ex: 24" required/>
+
+    <label for="taxa">Taxa Aplicação (% a.m.):</label>
+    <input type="number" id="taxa" step="0.01" placeholder="Ex: 1.2" required/>
+
+    <label for="ipca">Taxa IPCA (% a.m.):</label>
+    <input type="number" id="ipca" step="0.01" placeholder="Ex: 0.4" required/>
+
+    <button type="button" id="calcBtn">Calcular</button>
+  </form>
+
+  <section id="resultado">
+    <p id="montInv"></p>
+    <p id="montIPCA"></p>
+    <p id="diferenca"></p>
+  </section>
+
+  <section id="chartContainer">
+    <!-- canvas com tamanho fixo definido -->
+    <canvas id="chartCanvas" width="900" height="500"></canvas>
+  </section>
+
+  <script src="scritpPeriodicos.js"></script>
 </body>
+</html>
