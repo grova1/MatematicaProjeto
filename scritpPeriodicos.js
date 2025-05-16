@@ -1,93 +1,79 @@
-function GerarGrafico() {
-    let capital = parseFloat(document.getElementById("capital").value);
-    let aporte = parseFloat(document.getElementById("aporte").value);
-    let tempo = parseFloat(document.getElementById("tempo").value);
-    let taxaAplicacao = parseFloat(document.getElementById("taxa").value) / 100;
-    let ipca = parseFloat(document.getElementById("ipca").value) / 100;
+let chartInstance = null;
 
-    if (isNaN(capital) || isNaN(aporte) || isNaN(tempo) || isNaN(taxaAplicacao) || isNaN(ipca)) {
-        alert("Preencha todos os valores corretamente.");
-        return;
-    }
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const C0 = parseFloat(document.getElementById('capital').value) || 0;
+  const A  = parseFloat(document.getElementById('aporte').value)  || 0;
+  const n  = parseInt  (document.getElementById('meses').value)   || 0;
+  const r  = (parseFloat(document.getElementById('taxa').value)  || 0) / 100;
+  const i  = (parseFloat(document.getElementById('ipca').value)  || 0) / 100;
 
-    let parcelas = 10;
-    let intervalo = tempo / parcelas;
-    let labels = [];
-    let montantes = [];
-    let montantesIPCA = [];
+  const M_inv = C0 * Math.pow(1 + r, n) + A * ((Math.pow(1 + r, n) - 1) / r);
+  const M_ipc = C0 * Math.pow(1 + i, n) + A * ((Math.pow(1 + i, n) - 1) / i);
 
-    for (let i = 1; i <= parcelas; i++) {
-        let t = intervalo * i;
-        let montante, montanteIPCA;
+  document.getElementById('montInv').textContent =
+    `Montante (taxa aplic.): R$ ${M_inv.toFixed(2)}`;
+  document.getElementById('montIPCA').textContent =
+    `Montante (IPCA): R$ ${M_ipc.toFixed(2)}`;
+  document.getElementById('diferenca').textContent =
+    `Diferença: R$ ${(M_inv - M_ipc).toFixed(2)}`;
 
-        if (aporte === 0) {
-            montante = capital * Math.pow(1 + taxaAplicacao, t);
-            montanteIPCA = capital * Math.pow(1 + ipca, t);
-        } else {
-            let n = Math.floor(t * 12); // meses
-            let taxaMensal = Math.pow(1 + taxaAplicacao, 1 / 12) - 1;
-            let ipcaMensal = Math.pow(1 + ipca, 1 / 12) - 1;
+  // 10 divisões fixas → 11 pontos
+  const parts = 10;
+  const labels = Array.from({ length: parts + 1 },
+    (_, k) => Math.round(k * n / parts)
+  );
+  const dataInv = labels.map(k =>
+    C0 * Math.pow(1 + r, k) + A * ((Math.pow(1 + r, k) - 1) / r)
+  );
+  const dataIpc = labels.map(k =>
+    C0 * Math.pow(1 + i, k) + A * ((Math.pow(1 + i, k) - 1) / i)
+  );
 
-            montante = capital * Math.pow(1 + taxaMensal, n) +
-                       aporte * ((Math.pow(1 + taxaMensal, n) - 1) / taxaMensal);
+  drawChart(labels, dataInv, dataIpc);
+});
 
-            montanteIPCA = capital * Math.pow(1 + ipcaMensal, n) +
-                           aporte * ((Math.pow(1 + ipcaMensal, n) - 1) / ipcaMensal);
-        }
+function drawChart(labels, dataInv, dataIpc) {
+  const ctx = document.getElementById('chartCanvas').getContext('2d');
+  if (chartInstance) chartInstance.destroy();
 
-        labels.push(t.toFixed(1)); // Apenas o valor numérico, sem "anos"
-        montantes.push(montante);
-        montantesIPCA.push(montanteIPCA);
-    }
-
-    let resultadoDiv = document.getElementById("resultado");
-    let finalMontante = montantes[montantes.length - 1];
-    let finalMontanteIPCA = montantesIPCA[montantesIPCA.length - 1];
-    let diferencaReal = finalMontante - finalMontanteIPCA;
-
-    resultadoDiv.innerHTML = `
-        <p><strong>Montante com taxa de aplicação:</strong> R$ ${finalMontante.toFixed(2)}</p>
-        <p><strong>Montante corrigido pela inflação:</strong> R$ ${finalMontanteIPCA.toFixed(2)}</p>
-        <p><strong>Diferença real (descontando inflação):</strong> R$ ${diferencaReal.toFixed(2)}</p>
-    `;
-
-    let ctx = document.getElementById('graficoInvestimento').getContext('2d');
-    if (window.grafico) {
-        window.grafico.destroy();
-    }
-
-    window.grafico = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Montante com aplicação',
-                    data: montantes,
-                    borderColor: 'green',
-                    fill: false
-                },
-                {
-                    label: 'Montante com IPCA',
-                    data: montantesIPCA,
-                    borderColor: 'red',
-                    fill: false
-                }
-            ]
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Investimento',
+          data: dataInv,
+          borderColor: '#4a90e2',
+          backgroundColor: 'rgba(74,144,226,0.1)',
+          fill: true,
+          tension: 0.3
         },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: "Tempo"
-                    }
-                },
-                y: {
-                    beginAtZero: true
-                }
-            }
+        {
+          label: 'IPCA',
+          data: dataIpc,
+          borderColor: '#e94e77',
+          backgroundColor: 'rgba(233,78,119,0.1)',
+          fill: true,
+          tension: 0.3
         }
-    });
+      ]
+    },
+    options: {
+      responsive: false,            // desliga redraw automático
+      maintainAspectRatio: true,    
+      scales: {
+        x: { title: { display: true, text: 'Meses' } },
+        y: { title: { display: true, text: 'Valor (R$)' }, beginAtZero: true }
+      },
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.dataset.label}: R$ ${ctx.parsed.y.toFixed(2)}`
+          }
+        }
+      }
+    }
+  });
 }
